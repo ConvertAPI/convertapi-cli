@@ -14,10 +14,12 @@ import (
 func parseParams(paramString string, ext string) (paramsets [][]param.IParam, err error) {
 	var newParams []param.IParam
 	var parallel bool
-	for _, p := range strings.Split(paramString, ",") {
+	const esc = "|escapedcomma|"
+	var escParamStr = strings.ReplaceAll(paramString, "\\,", esc)
+	for _, p := range strings.Split(escParamStr, ",") {
 		kv := strings.SplitN(p, ":", 2)
 		k := strings.TrimSpace(kv[0])
-		v := strings.TrimSpace(kv[1])
+		v := strings.ReplaceAll(strings.TrimSpace(kv[1]), esc, ",")
 		if newParams, parallel, err = newCaParams(k, v, ext); err != nil {
 			return
 		}

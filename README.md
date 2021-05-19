@@ -81,6 +81,8 @@ _Example:_
 ```shell
 --params="param1:value1, param2:value2, param3:value3"
 ```
+Comma `,` inside the parameter value must be escaped with `\,`.
+
 
 ##### File parameter
 
