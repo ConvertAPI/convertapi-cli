@@ -12,7 +12,7 @@ type transport struct {
 }
 
 func (this *transport) RoundTrip(req *http.Request) (*http.Response, error) {
-	agent := fmt.Sprintf("ConvertAPI-CLI/%d (%s)", Version, strings.Title(runtime.GOOS))
+	agent := fmt.Sprintf("convertapi-cli%s/%d", strings.Title(runtime.GOOS), Version)
 	req.Header.Add("User-Agent", agent)
 	return this.RoundTripper.RoundTrip(req)
 }

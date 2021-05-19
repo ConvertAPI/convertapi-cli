@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-const Version = 1
+const Version = 2
 const Name = "convertapi"
 const HelpFlagName = "help"
 
