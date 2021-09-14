@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-const Version = 2
+const Version = 3
 const Name = "convertapi"
 const HelpFlagName = "help"
 
@@ -18,6 +18,8 @@ func main() {
 	paramsF := flag.String("params", "", "conversion parameters, see full list of available parameters at https://www.convertapi.com .  Allowed values: [ value | @<path> | @< | < | << ]. Usage example: --params=\"file:@/path/to/file.doc, pdftitle:My title\"")
 	outF := flag.String("out", "url", "place where to output converted files. Allowed values: [ url | @<path> | stdout ]. Save to directory example: --out=\"@/path/to/dir\" ")
 	secretF := flag.String("secret", "", "ConvertAPI user secret. Get your secret at https://www.convertapi.com/a")
+	tokenF := flag.String("token", "", "ConvertAPI user token. Get your secret at https://www.convertapi.com/a/auth")
+	apikeyF := flag.String("apikey", "", "ConvertAPI user apikey. Get your secret at https://www.convertapi.com/a/auth")
 	verF := flag.Bool("version", false, "output version information and exit")
 	helpF := flag.Bool(HelpFlagName, false, "display this help and exit")
 	flag.Parse()
@@ -36,7 +38,12 @@ func main() {
 	}
 
 	if *secretF == "" {
-		printError(errors.New("ConvertAPI user secret is not set. Please set --secret parameter. Get your secret at https://www.convertapi.com/a"), 1)
+		if *tokenF == "" {
+			printError(errors.New("ConvertAPI user secret is not set. Please set --secret or --token parameter. Get your secret at https://www.convertapi.com/a"), 1)
+		} else {
+			config.Default.Token = *tokenF
+			config.Default.ApiKey = *apikeyF
+		}
 	} else {
 		config.Default.Secret = *secretF
 	}

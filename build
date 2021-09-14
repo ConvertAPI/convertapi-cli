@@ -1,13 +1,16 @@
 #/bin/bash
 
 GOOS=linux GOARCH=amd64 GO111MODULE=auto go build -o ./bin/convertapi
-zip -q -j -m -9 bin/convertapi_lin.zip bin/convertapi
+tar -I 'gzip -9' --remove-files -cvf bin/convertapi_lin.tar.gz -C bin convertapi
 
 GOOS=linux GOARCH=arm GO111MODULE=auto go build -o bin/convertapi
-zip -q -j -m -9 bin/convertapi_lin_arm.zip bin/convertapi
+tar -I 'gzip -9' --remove-files -cvf bin/convertapi_lin_arm.tar.gz -C bin convertapi
+
+GOOS=darwin GOARCH=amd64 GO111MODULE=auto go build -o bin/convertapi
+tar -I 'gzip -9' --remove-files -cvf bin/convertapi_mac.tar.gz -C bin convertapi
+
+GOOS=darwin GOARCH=arm64 GO111MODULE=auto go build -o bin/convertapi
+tar -I 'gzip -9' --remove-files -cvf bin/convertapi_mac_arm.tar.gz -C bin convertapi
 
 GOOS=windows GOARCH=amd64 GO111MODULE=auto go build -o bin/convertapi.exe
 zip -q -j -m -9 bin/convertapi_win.zip bin/convertapi.exe
-
-GOOS=darwin GOARCH=amd64 GO111MODULE=auto go build -o bin/convertapi
-zip -q -j -m -9 bin/convertapi_mac.zip bin/convertapi
