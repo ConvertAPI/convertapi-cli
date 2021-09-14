@@ -11,10 +11,10 @@ You can get your free secret at https://www.convertapi.com/a
 
 Download compressed CLI executable
 
-* Linux: [convertapi_lin.zip](https://github.com/ConvertAPI/convertapi-cli/releases/download/v3/convertapi_lin.zip)
-* Linux ARM64: [convertapi_lin_arm.zip](https://github.com/ConvertAPI/convertapi-cli/releases/download/v3/convertapi_lin_arm.zip)
-* Darwin (MacOS): [convertapi_mac.zip](https://github.com/ConvertAPI/convertapi-cli/releases/download/v3/convertapi_mac.zip)
-* Darwin (MacOS) M1: [convertapi_mac_arm.zip](https://github.com/ConvertAPI/convertapi-cli/releases/download/v3/convertapi_mac_arm.zip)
+* Linux: [convertapi_lin.tar.gz](https://github.com/ConvertAPI/convertapi-cli/releases/download/v3/convertapi_lin.tar.gz)
+* Linux ARM64: [convertapi_lin_arm.tar.gz](https://github.com/ConvertAPI/convertapi-cli/releases/download/v3/convertapi_lin_arm.tar.gz)
+* Darwin (MacOS): [convertapi_mac.tar.gz](https://github.com/ConvertAPI/convertapi-cli/releases/download/v3/convertapi_mac.tar.gz)
+* Darwin (MacOS) M1: [convertapi_mac_arm.tar.gz](https://github.com/ConvertAPI/convertapi-cli/releases/download/v3/convertapi_mac_arm.tar.gz)
 * Windows: [convertapi_win.zip](https://github.com/ConvertAPI/convertapi-cli/releases/download/v3/convertapi_win.zip)
 
 (this utility can also be built from source code for many other CPU and OS)
