@@ -182,6 +182,17 @@ If the result contains multiple files, second and the following files will be ou
 ConvertAPI user secret.
 Get your secret at https://www.convertapi.com/a
 
+#### --token
+
+Token can be used instead of `--secret` parameter.
+Tokens can be generated in your [dashboard](https://www.convertapi.com/a/access-tokens).
+`--apikey` parameter must be set if token authentication is used.
+
+#### --apikey
+
+ApiKey can be retrieved from your [dashboard](https://www.convertapi.com/a/auth).
+`--apikey` parameter must be set if token authentication is used.
+
 #### --version
 
 Outputs CLI utility version information and exits.
