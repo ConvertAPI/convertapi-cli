@@ -20,85 +20,49 @@ public class CliTests
     }
 
     [Test]
-    [TestCase(true)]
-    [TestCase(false)]
-    public void TestConvertPdfToDocx(bool cli)
+    public void TestConvertPdfToDocx()
     {
         var outputFile = Path.Combine(TestOutputDir, "simple.docx");
         var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
 
-        var process = Run($"{ApiToken} {outputFile} {inputFile}", cli, inputFile);
+        var process = RunCli($"{ApiToken} {outputFile} {inputFile}");
 
-        if (cli)
-            Assert.AreEqual(0, process.ExitCode, "CLI did not exit cleanly.");
-        
+        Assert.AreEqual(0, process.ExitCode, "CLI did not exit cleanly.");
         Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
     }
 
     [Test]
-    [TestCase(true)]
-    [TestCase(false)]
-    public void TestMergePdfs(bool cli)
+    public void TestMergePdfs()
     {
         var outputFile = Path.Combine(TestOutputDir, "simple.pdf");
         var inputFile1 = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
         var inputFile2 = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "invoice.pdf");
-        var process = Run($"{ApiToken} {outputFile} {inputFile1} {inputFile2} pdf merge", cli, $"{inputFile1}{Environment.NewLine}{inputFile2}{Environment.NewLine}");
+        var process = RunCli($"{ApiToken} {outputFile} {inputFile1} {inputFile2} pdf merge");
 
-        if (cli)
-            Assert.AreEqual(0, process.ExitCode, "CLI did not exit cleanly.");
-        
+        Assert.AreEqual(0, process.ExitCode, "CLI did not exit cleanly.");
         Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
     }
 
     [Test]
-    [TestCase(true)]
-    [TestCase(false)]
-    public void TestAddWatermarkToPdf(bool cli)
+    public void TestAddWatermarkToPdf()
     {
         var outputFile = Path.Combine(TestOutputDir, "watermark.pdf");
         var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
-        var process = Run($"{ApiToken} {outputFile} {inputFile} pdf watermark Text=Confidential FileName=watermark", cli, inputFile);
+        var process = RunCli($"{ApiToken} {outputFile} {inputFile} pdf watermark Text=Confidential FileName=watermark");
 
-        if (cli)
-            Assert.AreEqual(0, process.ExitCode, "CLI did not exit cleanly.");
-        
+        Assert.AreEqual(0, process.ExitCode, "CLI did not exit cleanly.");
         Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
     }
 
     [Test]
-    [TestCase(true)]
-    [TestCase(false)]
-    public void TestProtectPdfWithPassword(bool cli)
+    public void TestProtectPdfWithPassword()
     {
         var outputFile = Path.Combine(TestOutputDir, "protected.pdf");
         var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
-        var process = Run($"{ApiToken} {outputFile} {inputFile} pdf protect UserPassword=1234 OwnerPassword=abcd FileName=protected", cli, inputFile);
-
-        if (cli)
-            Assert.AreEqual(0, process.ExitCode, "CLI did not exit cleanly.");
+        var process = RunCli($"{ApiToken} {outputFile} {inputFile} pdf protect UserPassword=1234 OwnerPassword=abcd FileName=protected");
         
+        Assert.AreEqual(0, process.ExitCode, "CLI did not exit cleanly.");
         Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
-    }
-
-    private Process? Run(string arguments, bool cli = true, string inputFiles = "")
-    {
-        if (cli)
-            return RunCli(arguments);
-        
-        var originalIn = Console.In;
-        try
-        {
-            Console.SetIn(new StringReader(inputFiles));
-            Program.Main(arguments.Split()).GetAwaiter().GetResult();
-        }
-        finally
-        {
-            // Restore the original input
-            Console.SetIn(originalIn);
-        }
-
-        return null;
     }
     
     private Process RunCli(string arguments)
