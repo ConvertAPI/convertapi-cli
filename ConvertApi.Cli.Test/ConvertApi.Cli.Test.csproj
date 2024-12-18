@@ -22,4 +22,8 @@
         <Using Include="NUnit.Framework"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\ConvertApi.Cli\ConvertApi.Cli.csproj" />
+    </ItemGroup>
+
 </Project>

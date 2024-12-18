@@ -1,14 +1,14 @@
 using System.Diagnostics;
+using Microsoft.VisualStudio.TestPlatform.TestHost;
 
 namespace ConvertApi.Cli.Test;
 
 [TestFixture]
 public class CliTests
 {
-    private static readonly string SolutionDirectory = GetSolutionDirectory();
-    private static readonly string CliExecutablePath = Path.Combine(SolutionDirectory, "ConvertApi.Cli", "bin", "Debug", "net8.0", "convertapi-cli.exe");
-    private const string ApiToken = "your_api_token_here"; // Provide your API token
-    private static readonly string TestOutputDir = Path.Combine(SolutionDirectory, "test_output");
+    private static readonly string CliExecutablePath = Path.Combine(Directory.GetCurrentDirectory(), "convertapi-cli.exe");
+    private const string ApiToken = "token_YvMxGi9S"; // Provide your API token
+    private static readonly string TestOutputDir = Path.Combine(Directory.GetCurrentDirectory(), "test_output");
 
     [SetUp]
     public void Setup()
@@ -23,9 +23,10 @@ public class CliTests
     [Test]
     public void TestConvertPdfToDocx()
     {
-        var outputFile = Path.Combine(TestOutputDir, "output.docx");
-        var inputFile = "sample.pdf";
-        var process = RunCli($"{ApiToken} {outputFile} {inputFile} pdf docx");
+        var outputFile = Path.Combine(TestOutputDir, "simple.docx");
+        var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
+
+        var process = RunCli($"{ApiToken} {outputFile} {inputFile}");
 
         Assert.AreEqual(0, process.ExitCode, "CLI did not exit cleanly.");
         Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
@@ -35,7 +36,8 @@ public class CliTests
     public void TestMergePdfs()
     {
         var outputFile = Path.Combine(TestOutputDir, "merged.pdf");
-        var process = RunCli($"{ApiToken} {outputFile} file1.pdf file2.pdf pdf merge");
+        var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
+        var process = RunCli($"{ApiToken} {outputFile} {inputFile} {inputFile} pdf merge");
 
         Assert.AreEqual(0, process.ExitCode, "CLI did not exit cleanly.");
         Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
@@ -60,49 +62,36 @@ public class CliTests
         Assert.AreEqual(0, process.ExitCode, "CLI did not exit cleanly.");
         Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
     }
-
+    
     private Process RunCli(string arguments)
     {
-        if (!File.Exists(CliExecutablePath))
-        {
-            throw new FileNotFoundException($"CLI executable not found at {CliExecutablePath}");
-        }
-
-        var process = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = CliExecutablePath,
-                Arguments = arguments,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            }
-        };
-
-        process.Start();
-        process.WaitForExit();
-
-        Console.WriteLine(process.StandardOutput.ReadToEnd());
-        Console.WriteLine(process.StandardError.ReadToEnd());
-
-        return process;
-    }
-
-    private static string GetSolutionDirectory()
-    {
-        var directory = Directory.GetCurrentDirectory();
-        while (!string.IsNullOrEmpty(directory) && !File.Exists(Path.Combine(directory, "ConvertApi.Cli.sln")))
-        {
-            directory = Directory.GetParent(directory)?.FullName;
-        }
-
-        if (string.IsNullOrEmpty(directory))
-        {
-            throw new DirectoryNotFoundException("Solution directory not found.");
-        }
-
-        return directory;
+         if (!File.Exists(CliExecutablePath))
+             throw new FileNotFoundException($"CLI executable not found at {CliExecutablePath}");
+        
+         var process = new Process
+         {
+             StartInfo = new ProcessStartInfo
+             {
+                 FileName = CliExecutablePath,
+                 Arguments = arguments,
+                 UseShellExecute = true, // Run in a normal console environment, because otherwise process hangs because of readline in program.cs
+                 CreateNoWindow = true 
+             }
+         };
+        
+         if (!process.Start())
+             throw new InvalidOperationException("Failed to start the CLI process.");
+        
+         // 20s to prevent infinite hangs
+         if (!process.WaitForExit(20000))
+         {
+             process.Kill();
+             throw new TimeoutException("The CLI process did not exit within 2 minutes.");
+         }
+        
+         if (process.ExitCode != 0)
+             throw new Exception($"CLI process exited with code {process.ExitCode}");
+        
+         return process;
     }
 }
