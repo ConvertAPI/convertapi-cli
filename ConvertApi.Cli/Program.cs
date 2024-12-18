@@ -4,13 +4,13 @@ using System.Reflection;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
 
-class Program
+public class Program
 {
     private const int HttpClientTimeoutSeconds = 1800;
     private const string ConvertApiBaseUrl = "https://v2.convertapi.com/convert";
     private const string UserAgentFormat = "convertapi-cli/{0}";
 
-    static async Task Main(string[] args)
+    public static async Task Main(string[] args)
     {
         if (args.Length < 2 && Console.IsInputRedirected == false)
         {
