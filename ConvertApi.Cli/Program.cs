@@ -52,9 +52,9 @@ public class Program
             ? args[^1] // Last argument
             : Path.GetExtension(outputFile).Trim('.').ToLower(); // Infer from output file
 
-        
-         // Second to last argument
-           // Last argument
+
+        // Second to last argument
+        // Last argument
 
         // Validate input files
         foreach (var file in inputFiles)
@@ -115,23 +115,29 @@ public class Program
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("multipart/mixed"));
 
-            if (inputFiles.Length == 1)
+            if (inputFiles.Any())
             {
-                form.Add(new StreamContent(File.OpenRead(inputFiles[0]))
+                if (inputFiles.Length == 1)
                 {
-                    Headers = { ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data") { Name = "file", FileName = Path.GetFileName(inputFiles[0]) } }
-                });
-            }
-            else
-            {
-                int fileIndex = 0;
-                foreach (var inputFile in inputFiles)
-                {
-                    form.Add(new StreamContent(File.OpenRead(inputFile))
+                    form.Add(new StreamContent(File.OpenRead(inputFiles[0]))
                     {
-                        Headers = { ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data") { Name = $"files[{fileIndex}]", FileName = Path.GetFileName(inputFile) } }
+                        Headers = { ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data") { Name = "file", FileName = Path.GetFileName(inputFiles[0]) } }
                     });
-                    fileIndex++;
+                }
+                else
+                {
+                    int fileIndex = 0;
+                    foreach (var inputFile in inputFiles)
+                    {
+                        form.Add(new StreamContent(File.OpenRead(inputFile))
+                        {
+                            Headers =
+                            {
+                                ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data") { Name = $"files[{fileIndex}]", FileName = Path.GetFileName(inputFile) }
+                            }
+                        });
+                        fileIndex++;
+                    }
                 }
             }
 
@@ -155,7 +161,8 @@ public class Program
 
                 while ((section = await multipartReader.ReadNextSectionAsync()) != null)
                 {
-                    if (Microsoft.Net.Http.Headers.ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out var contentDisposition) && (contentDisposition.FileName != null || contentDisposition.FileNameStar.HasValue))
+                    if (Microsoft.Net.Http.Headers.ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out var contentDisposition) &&
+                        (contentDisposition.FileName != null || contentDisposition.FileNameStar.HasValue))
                     {
                         var fileName = contentDisposition.FileNameStar.HasValue ? contentDisposition.FileNameStar.Value : contentDisposition.FileName.Value.Trim('"');
                         var filePath = Directory.Exists(outputPath) ? Path.Combine(outputPath, fileName) : Path.Combine(Path.GetDirectoryName(outputPath), fileName);
@@ -175,10 +182,10 @@ public class Program
                 var errorContent = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"Error: {response.StatusCode}. Response message: {errorContent}");
             }
-        } 
-    } 
-  
-  static string GetVersion()
+        }
+    }
+
+    static string GetVersion()
     {
         var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
         return version ?? "unknown";
