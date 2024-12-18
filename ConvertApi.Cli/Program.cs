@@ -12,39 +12,49 @@ public class Program
 
     public static async Task Main(string[] args)
     {
-        if (args.Length < 2 && Console.IsInputRedirected == false)
+        if (args.Length < 3)
         {
             DisplayHelp();
             return;
         }
 
-        string apiToken = args.Length > 0 ? args[0] : null;
-        string outputFile = args.Length > 1 ? args[1] : null;
-        string[] inputFiles;
+        string apiToken = args[0];
+        string outputFile = args[1];
 
-        if (Console.IsInputRedirected)
+        // Extract input files, formats, and dynamic properties
+        int inputFilesEndIndex = args.Length > 4 && !args[^2].Contains('=') && !args[^1].Contains('=')
+            ? args.Length - 2 // Exclude [from-format] and [to-format]
+            : args.Length;
+
+        string[] inputFiles = args.Skip(2).Take(inputFilesEndIndex - 2).ToArray();
+
+        // Validate input files
+        if (inputFiles.Length == 0)
         {
-            Console.WriteLine("Reading input files from PIPE...");
-            var pipeInput = new List<string>();
-            string line;
-            while ((line = Console.ReadLine()) != null)
-            {
-                pipeInput.Add(line);
-            }
-
-            inputFiles = pipeInput.ToArray();
+            Console.WriteLine("Error: At least one input file is required.");
+            return;
         }
-        else
+
+        foreach (var file in inputFiles)
         {
-            int inputFilesCount = args.Length - 4; // Exclude API token, output file, from-format, and to-format
-            if (inputFilesCount < 1)
+            if (!File.Exists(file))
             {
-                Console.WriteLine("Error: At least one input file is required.");
+                Console.WriteLine($"Error: Input file not found: {file}");
                 return;
             }
-
-            inputFiles = args.Skip(2).Take(inputFilesCount).ToArray();
         }
+
+        string fromFormat = args.Length > inputFilesEndIndex
+            ? args[^2] // Second-to-last argument
+            : Path.GetExtension(inputFiles[0]).Trim('.').ToLower(); // Infer from first input file
+
+        string toFormat = args.Length > inputFilesEndIndex + 1
+            ? args[^1] // Last argument
+            : Path.GetExtension(outputFile).Trim('.').ToLower(); // Infer from output file
+
+        
+         // Second to last argument
+           // Last argument
 
         // Validate input files
         foreach (var file in inputFiles)
@@ -56,9 +66,7 @@ public class Program
             }
         }
 
-        string fromFormat = args[^2];
-        string toFormat = args[^1];
-
+        // Extract dynamic properties
         var dynamicProperties = args.Skip(2 + inputFiles.Length).Where(arg => arg.Contains('=')).ToDictionary(
             arg => arg.Split('=')[0],
             arg => arg.Split('=')[1]
@@ -84,10 +92,10 @@ public class Program
         Console.WriteLine("    convertapi-cli.exe YOUR_API_TOKEN merged_output.pdf file1.pdf file2.pdf file3.pdf pdf merge");
         Console.WriteLine();
         Console.WriteLine("  Protect a PDF with a password:");
-        Console.WriteLine("    convertapi-cli.exe YOUR_API_TOKEN protected_output.pdf input.pdf UserPassword=1234 OwnerPassword=abcd");
+        Console.WriteLine("    convertapi-cli.exe YOUR_API_TOKEN protected_output.pdf input.pdf pdf protect UserPassword=1234 OwnerPassword=abcd FileName=protected");
         Console.WriteLine();
         Console.WriteLine("  Add a watermark to a PDF:");
-        Console.WriteLine("    convertapi-cli.exe YOUR_API_TOKEN watermarked_output.pdf input.pdf WatermarkText=Confidential");
+        Console.WriteLine("    convertapi-cli.exe YOUR_API_TOKEN watermarked_output.pdf input.pdf pdf watermark Text=Confidential FileName=watermark");
         Console.WriteLine();
         Console.WriteLine("Dynamic Properties:");
         Console.WriteLine("  Specify additional parameters using key=value pairs, such as UserPassword, OwnerPassword, or WatermarkText, depending on the API being used.");
@@ -121,10 +129,7 @@ public class Program
                 {
                     form.Add(new StreamContent(File.OpenRead(inputFile))
                     {
-                        Headers =
-                        {
-                            ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data") { Name = $"files[{fileIndex}]", FileName = Path.GetFileName(inputFile) }
-                        }
+                        Headers = { ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data") { Name = $"files[{fileIndex}]", FileName = Path.GetFileName(inputFile) } }
                     });
                     fileIndex++;
                 }
@@ -150,8 +155,7 @@ public class Program
 
                 while ((section = await multipartReader.ReadNextSectionAsync()) != null)
                 {
-                    if (Microsoft.Net.Http.Headers.ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out var contentDisposition) &&
-                        (contentDisposition.FileName != null || contentDisposition.FileNameStar.HasValue))
+                    if (Microsoft.Net.Http.Headers.ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out var contentDisposition) && (contentDisposition.FileName != null || contentDisposition.FileNameStar.HasValue))
                     {
                         var fileName = contentDisposition.FileNameStar.HasValue ? contentDisposition.FileNameStar.Value : contentDisposition.FileName.Value.Trim('"');
                         var filePath = Directory.Exists(outputPath) ? Path.Combine(outputPath, fileName) : Path.Combine(Path.GetDirectoryName(outputPath), fileName);
@@ -171,10 +175,10 @@ public class Program
                 var errorContent = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"Error: {response.StatusCode}. Response message: {errorContent}");
             }
-        }
-    }
-
-    static string GetVersion()
+        } 
+    } 
+  
+  static string GetVersion()
     {
         var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
         return version ?? "unknown";

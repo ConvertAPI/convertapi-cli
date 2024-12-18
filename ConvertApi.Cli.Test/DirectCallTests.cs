@@ -13,62 +13,110 @@ public class DirectCallTests
         {
             Directory.Delete(TestOutputDir, true);
         }
+
         Directory.CreateDirectory(TestOutputDir);
     }
 
     [Test]
-    public void TestConvertPdfToDocx()
+    public async Task TestConvertPdfToDocx()
     {
         var outputFile = Path.Combine(TestOutputDir, "simple.docx");
         var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
 
-        Run($"{ApiToken} {outputFile} {inputFile}", inputFile);
+        await Program.Main([ApiToken, outputFile, inputFile]);
+
         Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
     }
 
     [Test]
-    public void TestMergePdfs()
+    public async Task TestMergePdfs()
     {
         var outputFile = Path.Combine(TestOutputDir, "simple.pdf");
         var inputFile1 = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
         var inputFile2 = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "invoice.pdf");
-        Run($"{ApiToken} {outputFile} {inputFile1} {inputFile2} pdf merge", $"{inputFile1}{Environment.NewLine}{inputFile2}{Environment.NewLine}");
+
+        await Program.Main([ApiToken, TestOutputDir, inputFile1, inputFile2, "pdf", "merge"]);
 
         Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
     }
 
     [Test]
-    public void TestAddWatermarkToPdf()
+    public async Task TestMergeMutiplePdfs()
+    {
+        var outputFile = Path.Combine(TestOutputDir, "simple.pdf");
+        var inputFile1 = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
+        var inputFile2 = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "invoice.pdf");
+        var inputFile3 = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "invoice.pdf");
+
+        await Program.Main([ApiToken, TestOutputDir, inputFile1, inputFile2, inputFile3, "pdf", "merge"]);
+
+        Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
+    }
+
+    [Test]
+    public async Task TestAddWatermarkToPdf()
     {
         var outputFile = Path.Combine(TestOutputDir, "watermark.pdf");
         var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
-        Run($"{ApiToken} {outputFile} {inputFile} pdf watermark Text=Confidential FileName=watermark", inputFile);
+
+        await Program.Main([ApiToken, TestOutputDir, inputFile, "pdf", "watermark", "Text=Confidential", "FileName=watermark"]);
+
 
         Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
     }
 
     [Test]
-    public void TestProtectPdfWithPassword()
+    public async Task TestProtectPdfWithPassword()
     {
         var outputFile = Path.Combine(TestOutputDir, "protected.pdf");
         var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
-        Run($"{ApiToken} {outputFile} {inputFile} pdf protect UserPassword=1234 OwnerPassword=abcd FileName=protected", inputFile);
-        
+
+        await Program.Main([ApiToken, TestOutputDir, inputFile, "pdf", "protect", "UserPassword=1234", "OwnerPassword=abcd", "FileName=protected"]);
+
         Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
     }
 
-    private void Run(string arguments, string inputFiles = "")
+    [Test]
+    public async Task TestPdfToPngWithResolution()
     {
-        var originalIn = Console.In;
-        try
-        {
-            Console.SetIn(new StringReader(inputFiles));
-            Program.Main(arguments.Split()).GetAwaiter().GetResult();
-        }
-        finally
-        {
-            // Restore the original input
-            Console.SetIn(originalIn);
-        }
+        var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
+
+        await Program.Main([ApiToken, TestOutputDir, inputFile, "pdf", "png", "Resolution=300"]);
+
+        Assert.IsTrue(File.Exists(outputFolder), "Output file was not created.");
+    }
+
+    [Test]
+    public async Task TestPdfToExtractImages()
+    {
+        var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
+
+        await Program.Main([ApiToken, TestOutputDir, inputFile, "pdf", "extract-images"]);
+
+        Assert.IsTrue(File.Exists(outputFolder), "Output file was not created.");
+    }
+
+    [Test]
+    public async Task TestPdfToExtractImagesError()
+    {
+        var outputFolder = Path.Combine(TestOutputDir, "watermark.pdf");
+        var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
+
+        await Program.Main([ApiToken, TestOutputDir, inputFile, "pdf", "extract-images"]);
+
+        Should fail
+        Assert.IsTrue(File.Exists(outputFolder), "Output file was not created.");
+    }
+
+    [Test]
+    public async Task TestWebToPdf()
+    {
+        var outputFolder = Path.Combine(TestOutputDir, "watermark.pdf");
+        var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
+
+        await Program.Main([ApiToken, TestOutputDir, "", "web", "pdf", "url=https://www.google.com"]);
+
+        
+        Assert.IsTrue(File.Exists(outputFolder), "Output file was not created.");
     }
 }
