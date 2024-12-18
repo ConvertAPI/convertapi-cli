@@ -31,11 +31,19 @@ public class Program
             {
                 pipeInput.Add(line);
             }
+
             inputFiles = pipeInput.ToArray();
         }
         else
         {
-            inputFiles = args.Skip(2).TakeWhile(arg => !arg.Contains('=')).ToArray();
+            int inputFilesCount = args.Length - 4; // Exclude API token, output file, from-format, and to-format
+            if (inputFilesCount < 1)
+            {
+                Console.WriteLine("Error: At least one input file is required.");
+                return;
+            }
+
+            inputFiles = args.Skip(2).Take(inputFilesCount).ToArray();
         }
 
         // Validate input files
@@ -48,8 +56,8 @@ public class Program
             }
         }
 
-        string fromFormat = Directory.Exists(outputFile) ? (args.Length > 3 ? args[^2] : throw new ArgumentException("[from-format] is required when output path is a folder.")) : Path.GetExtension(inputFiles[0]).Trim('.').ToLower();
-        string toFormat = Directory.Exists(outputFile) ? (args.Length > 4 ? args[^1] : throw new ArgumentException("[to-format] is required when output path is a folder.")) : Path.GetExtension(outputFile).Trim('.').ToLower();
+        string fromFormat = args[^2];
+        string toFormat = args[^1];
 
         var dynamicProperties = args.Skip(2 + inputFiles.Length).Where(arg => arg.Contains('=')).ToDictionary(
             arg => arg.Split('=')[0],
@@ -108,12 +116,17 @@ public class Program
             }
             else
             {
+                int fileIndex = 0;
                 foreach (var inputFile in inputFiles)
                 {
                     form.Add(new StreamContent(File.OpenRead(inputFile))
                     {
-                        Headers = { ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data") { Name = "files", FileName = Path.GetFileName(inputFile) } }
+                        Headers =
+                        {
+                            ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data") { Name = $"files[{fileIndex}]", FileName = Path.GetFileName(inputFile) }
+                        }
                     });
+                    fileIndex++;
                 }
             }
 
@@ -137,7 +150,8 @@ public class Program
 
                 while ((section = await multipartReader.ReadNextSectionAsync()) != null)
                 {
-                    if (Microsoft.Net.Http.Headers.ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out var contentDisposition) && (contentDisposition.FileName != null || contentDisposition.FileNameStar.HasValue))
+                    if (Microsoft.Net.Http.Headers.ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out var contentDisposition) &&
+                        (contentDisposition.FileName != null || contentDisposition.FileNameStar.HasValue))
                     {
                         var fileName = contentDisposition.FileNameStar.HasValue ? contentDisposition.FileNameStar.Value : contentDisposition.FileName.Value.Trim('"');
                         var filePath = Directory.Exists(outputPath) ? Path.Combine(outputPath, fileName) : Path.Combine(Path.GetDirectoryName(outputPath), fileName);
@@ -157,10 +171,10 @@ public class Program
                 var errorContent = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"Error: {response.StatusCode}. Response message: {errorContent}");
             }
-        } 
-    } 
-  
-  static string GetVersion()
+        }
+    }
+
+    static string GetVersion()
     {
         var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
         return version ?? "unknown";
