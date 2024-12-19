@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace ConvertApi.Cli.Test;
+namespace ConvertApi.Cli.Tests;
 
 [TestFixture]
 public class CliTests

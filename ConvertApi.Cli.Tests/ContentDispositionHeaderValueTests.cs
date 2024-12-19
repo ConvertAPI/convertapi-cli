@@ -1,6 +1,6 @@
 ﻿using Microsoft.Net.Http.Headers;
 
-namespace ConvertApi.Cli.Test;
+namespace ConvertApi.Cli.Tests;
 
 [TestFixture]
 public class ContentDispositionHeaderValueTests

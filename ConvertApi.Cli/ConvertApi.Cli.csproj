@@ -12,6 +12,10 @@
         <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>-->
         <AssemblyName>convertapi-cli</AssemblyName>
         <RootNamespace>ConvertApi.Cli</RootNamespace>
+        <Authors>ConvertAPI</Authors>
+        <Description>convertapi-cli</Description>
+        <Copyright>ConvertAPI</Copyright>
+        <Company>ConvertAPI</Company>
     </PropertyGroup>
 
     <ItemGroup>

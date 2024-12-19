@@ -1,4 +1,4 @@
-namespace ConvertApi.Cli.Test;
+namespace ConvertApi.Cli.Tests;
 
 [TestFixture]
 public class DirectCallTests
