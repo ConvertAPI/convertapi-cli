@@ -35,15 +35,15 @@ jobs:
         run: dotnet publish ConvertApi.Cli/ConvertApi.Cli.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true
 
       # Create a zip package
-      - name: Create ZIP package
-        run: |
-          mkdir -p ${{ env.OUTPUT_DIR }}
-          zip -j ${{ env.OUTPUT_DIR }}/convertApi-cli.zip ${{ env.PUBLISH_DIR }}/*
+      # - name: Create ZIP package
+      #   run: |
+      #     mkdir -p ${{ env.OUTPUT_DIR }}
+      #     zip -j ${{ env.OUTPUT_DIR }}/convertApi-cli.zip ${{ env.PUBLISH_DIR }}/*
 
       # Upload the artifact
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: convertApi-cli
-          path: ${{ env.OUTPUT_DIR }}/convertApi-cli.zip
+          path: ${{ env.PUBLISH_DIR }}
           retention-days: 1
