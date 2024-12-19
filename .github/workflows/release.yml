@@ -13,7 +13,7 @@ jobs:
     env:
       GITHUB_ACTIONS: true
       PUBLISH_DIR: bin/Release/net8.0/win-x64/publish
-      OUTPUT_ZIP: output/convertApi-cli.zip
+
 
     steps:
       # Checkout the code
@@ -35,14 +35,15 @@ jobs:
         run: dotnet publish ConvertApi.Cli/ConvertApi.Cli.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true
 
       # Create a zip package
-      - name: Create ZIP package
-        run: |
-          mkdir -p output
-          zip -j output/convertApi-cli.zip ConvertApi.Cli/bin/Release/net8.0/win-x64/publish/*
+      # - name: Create ZIP package
+      #   run: |
+      #     mkdir -p output
+      #     zip -j output/convertApi-cli.zip ConvertApi.Cli/bin/Release/net8.0/win-x64/publish/*
 
       # Upload the artifact
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: convertApi-cli
-          path: ${{ env.OUTPUT_ZIP }}
+          path: ConvertApi.Cli/bin/Release/net8.0/win-x64/publish/convertApi-cli.zip
+          retention-days: 1  # Storing it for 1 day, not to exceed free plan.
