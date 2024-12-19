@@ -32,13 +32,7 @@ jobs:
 
       # Build the project
       - name: Build
-        run: dotnet publish ConvertApi.Cli/ConvertApi.Cli.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true
-
-      # Create a zip package
-      # - name: Create ZIP package
-      #   run: |
-      #     mkdir -p ${{ env.OUTPUT_DIR }}
-      #     zip -j ${{ env.OUTPUT_DIR }}/convertApi-cli.zip ${{ env.PUBLISH_DIR }}/*
+        run: dotnet publish ConvertApi.Cli/ConvertApi.Cli.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:DebugType=none /p:DebugSymbols=false
 
       # Upload the artifact
       - name: Upload artifact
