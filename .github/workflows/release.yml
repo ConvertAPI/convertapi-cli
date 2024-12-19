@@ -1,4 +1,4 @@
-name: Build and Package
+name: Build and Package All Runtimes
 
 on:
   workflow_dispatch:
@@ -12,15 +12,17 @@ jobs:
     timeout-minutes: 30
     env:
       GITHUB_ACTIONS: true
-      PUBLISH_DIR: ConvertApi.Cli/bin/Release/net8.0/win-x64/publish
-      OUTPUT_DIR: output
+      FRAMEWORK: net8.0
+      PROJECT: ConvertApi.Cli/ConvertApi.Cli.csproj
+
+    strategy:
+      matrix:
+        runtime: [ "win-x64", "linux-x64", "linux-arm64", "osx-x64", "osx-arm64" ]
 
     steps:
-      # Checkout the code
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Setup .NET SDK
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
@@ -30,14 +32,20 @@ jobs:
       # - name: Test
       #   run: dotnet test ConvertApi.Cli.Tests
 
-      # Build the project
-      - name: Build
-        run: dotnet publish ConvertApi.Cli/ConvertApi.Cli.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:DebugType=none /p:DebugSymbols=false
+      - name: Publish for ${{ matrix.runtime }}
+        run: |
+          dotnet publish ${{ env.PROJECT }} \
+            -c Release \
+            -r ${{ matrix.runtime }} \
+            --self-contained true \
+            /p:PublishSingleFile=true \
+            /p:IncludeNativeLibrariesForSelfExtract=true \
+            /p:DebugType=none \
+            /p:DebugSymbols=false
 
-      # Upload the artifact
-      - name: Upload artifact
+      - name: Upload artifact for ${{ matrix.runtime }}
         uses: actions/upload-artifact@v3
         with:
-          name: convertApi-cli
-          path: ${{ env.PUBLISH_DIR }}
+          name: convertApi-cli-${{ matrix.runtime }}
+          path: ConvertApi.Cli/bin/Release/${{ env.FRAMEWORK }}/${{ matrix.runtime }}/publish
           retention-days: 1
