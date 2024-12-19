@@ -17,54 +17,30 @@ public class Program
             DisplayHelp();
             return;
         }
+        
+        // Replacing null values with empty string to avoid unexpected behaviour.
+        args = args.Select(s => s ?? "").ToArray();
 
         string apiToken = args[0];
         string outputFile = args[1];
 
         // Extract input files, formats, and dynamic properties
-        int inputFilesEndIndex = args.Length > 4 && !args[^2].Contains('=') && !args[^1].Contains('=')
-            ? args.Length - 2 // Exclude [from-format] and [to-format]
-            : args.Length;
+        var parametersCount = args.Count(x => x.Contains('='));
+        int inputFilesEndIndex = args.Length > 4
+            ? args.Length - parametersCount - 2 // Exclude [from-format] and [to-format]
+            : args.Length - parametersCount;
 
         string[] inputFiles = args.Skip(2).Take(inputFilesEndIndex - 2).ToArray();
-
-        // Validate input files
-        if (inputFiles.Length == 0)
-        {
-            Console.WriteLine("Error: At least one input file is required.");
-            return;
-        }
-
-        foreach (var file in inputFiles)
-        {
-            if (!File.Exists(file))
-            {
-                Console.WriteLine($"Error: Input file not found: {file}");
-                return;
-            }
-        }
-
+        
         string fromFormat = args.Length > inputFilesEndIndex
-            ? args[^2] // Second-to-last argument
+            ? args[^(2 + parametersCount)] // Second-to-last argument - parameters with '='
             : Path.GetExtension(inputFiles[0]).Trim('.').ToLower(); // Infer from first input file
 
         string toFormat = args.Length > inputFilesEndIndex + 1
-            ? args[^1] // Last argument
+            ? args[^(1 + parametersCount)] // Last argument - parameters with '='
             : Path.GetExtension(outputFile).Trim('.').ToLower(); // Infer from output file
-
-
-        // Second to last argument
-        // Last argument
-
-        // Validate input files
-        foreach (var file in inputFiles)
-        {
-            if (!File.Exists(file))
-            {
-                Console.WriteLine($"Error: Input file not found: {file}");
-                return;
-            }
-        }
+        
+        ValidateInputFiles(inputFiles, fromFormat);
 
         // Extract dynamic properties
         var dynamicProperties = args.Skip(2 + inputFiles.Length).Where(arg => arg.Contains('=')).ToDictionary(
@@ -73,6 +49,27 @@ public class Program
         );
 
         await ConvertFiles(apiToken, fromFormat, toFormat, inputFiles, outputFile, dynamicProperties);
+    }
+
+    private static void ValidateInputFiles(string[] inputFiles, string fromFormat)
+    {
+        if (fromFormat == "web")
+            return;
+            
+        if (inputFiles.Length == 0)
+        {
+            Console.WriteLine("Error: At least one input file is required.");
+            return;
+        }
+        
+        foreach (var file in inputFiles)
+        {
+            if (!File.Exists(file))
+            {
+                Console.WriteLine($"Error: Input file not found: {file}");
+                return;
+            }
+        }
     }
 
     static void DisplayHelp()
@@ -115,7 +112,7 @@ public class Program
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("multipart/mixed"));
 
-            if (inputFiles.Any())
+            if (inputFiles.Any(x => !string.IsNullOrEmpty(x)))
             {
                 if (inputFiles.Length == 1)
                 {
