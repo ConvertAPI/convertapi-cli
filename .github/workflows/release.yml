@@ -1,4 +1,4 @@
-name: Build and Package All Runtimes
+name: Build and Release
 
 on:
   workflow_dispatch:
@@ -12,18 +12,40 @@ on:
       - 'v*'
 
 jobs:
-  build:
+  create_release_job:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      FRAMEWORK: net8.0
-      PROJECT: ConvertApi.Cli/ConvertApi.Cli.csproj
-      TAG_NAME: ${{ github.ref_name }}
+    outputs:
+      release_upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      # - name: Setup .NET SDK
+      #   uses: actions/setup-dotnet@v4
+      #   with:
+      #     dotnet-version: '8.x'
 
+      # Run tests
+      # - name: Test
+      #   run: dotnet test ConvertApi.Cli.Tests
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.inputs.version || github.ref_name }}
+          release_name: ${{ github.event.inputs.version || github.ref_name }}
+          draft: false
+          prerelease: false
+
+  build_and_upload:
+    runs-on: ubuntu-latest
+    needs: create_release_job
     strategy:
       matrix:
         runtime: [ "win-x64", "linux-x64", "linux-arm64", "osx-x64", "osx-arm64" ]
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,13 +55,9 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      # Run tests
-      # - name: Test
-      #   run: dotnet test ConvertApi.Cli.Tests
-
       - name: Publish for ${{ matrix.runtime }}
         run: |
-          dotnet publish ${{ env.PROJECT }} \
+          dotnet publish ConvertApi.Cli/ConvertApi.Cli.csproj \
             -c Release \
             -r ${{ matrix.runtime }} \
             --self-contained true \
@@ -48,39 +66,16 @@ jobs:
             /p:DebugType=none \
             /p:DebugSymbols=false
 
-      # - name: Upload artifact for ${{ matrix.runtime }}
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: convertApi-cli-${{ matrix.runtime }}
-      #     path: ConvertApi.Cli/bin/Release/${{ env.FRAMEWORK }}/${{ matrix.runtime }}/publish
-      #     retention-days: 1
-
-      # Use a step that archives the published files. This ensures we upload a zip asset.
-      - name: Zip package for ${{ matrix.runtime }}
+      - name: Zip package
         run: |
-          cd ConvertApi.Cli/bin/Release/${{ env.FRAMEWORK }}/${{ matrix.runtime }}/publish
-          zip -r ../../../../../convertApi-cli-${{ matrix.runtime }}.zip ./*
+          zip -j convertApi-cli-${{ matrix.runtime }}.zip ConvertApi.Cli/bin/Release/net8.0/${{ matrix.runtime }}/publish/*
 
-      # Create or update the release only once at first matrix job (not on each matrix job).
-      - name: Create Release
-        if: ${{ matrix.runtime == 'win-x64' }}
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.TAG_NAME }}
-          release_name: ${{ env.TAG_NAME }}
-          draft: false
-          prerelease: false
-
-      # Upload each runtime's asset to the newly created release.
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ needs.create_release_job.outputs.release_upload_url }}
           asset_path: ./convertApi-cli-${{ matrix.runtime }}.zip
           asset_name: convertApi-cli-${{ matrix.runtime }}.zip
           asset_content_type: application/zip
