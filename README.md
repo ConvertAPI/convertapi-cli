@@ -22,7 +22,7 @@ Download compressed CLI executable
 Unzip executable
 
 ```shell
-unzip convertapi_*.zip
+unzip convertapi-cli*.zip
 ```
 
 And you are done.
@@ -65,7 +65,7 @@ Any of these authentication mechanisms can be used as `api-token`:
 _Example:_
 
 ```shell
-secret_asdaSERTervcxsFWtt
+api_token
 ```
 
 #### output-directory
