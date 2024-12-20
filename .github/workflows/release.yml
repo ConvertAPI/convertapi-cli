@@ -20,14 +20,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         
-      # - name: Setup .NET SDK
-      #   uses: actions/setup-dotnet@v4
-      #   with:
-      #     dotnet-version: '8.x'
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
 
-      # Run tests
-      # - name: Test
-      #   run: dotnet test ConvertApi.Cli.Tests
+      - name: Test
+        run: dotnet test ConvertApi.Cli.Tests
 
       - name: Create Release
         id: create_release
