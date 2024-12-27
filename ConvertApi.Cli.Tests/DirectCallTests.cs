@@ -20,7 +20,7 @@ public class DirectCallTests
     [Test]
     public async Task TestConvertPdfToDocx()
     {
-        var outputFile = Path.Combine(TestOutputDir, "simple.docx");
+        var outputFile = Path.Combine(TestOutputDir, "simple2.docx");
         var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
 
         await Program.Main([ApiToken, outputFile, inputFile]);
@@ -61,6 +61,18 @@ public class DirectCallTests
     
         await Program.Main([ApiToken, TestOutputDir, inputFile, "pdf", "watermark", "Text=Confidential", "FileName=watermark"]);
     
+    
+        Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
+    }
+    
+    [Test]
+    public async Task TestAddWatermarkOverlayToPdf()
+    {
+        var outputFile = Path.Combine(TestOutputDir, "watermarkOverlay.pdf");
+        var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
+        var overlayFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
+    
+        await Program.Main([ApiToken, TestOutputDir, inputFile, "pdf", "watermark-overlay", "FileName=watermarkOverlay", $"OverlayFile={overlayFile}"]);
     
         Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
     }

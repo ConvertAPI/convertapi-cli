@@ -17,7 +17,7 @@ public class Program
             DisplayHelp();
             return;
         }
-        
+
         // Replacing null values with empty string to avoid unexpected behaviour.
         args = args.Select(s => s ?? "").ToArray();
 
@@ -31,7 +31,7 @@ public class Program
             : args.Length - parametersCount;
 
         string[] inputFiles = args.Skip(2).Take(inputFilesEndIndex - 2).ToArray();
-        
+
         string fromFormat = args.Length > inputFilesEndIndex
             ? args[^(2 + parametersCount)] // Second-to-last argument - parameters with '='
             : Path.GetExtension(inputFiles[0]).Trim('.').ToLower(); // Infer from first input file
@@ -39,7 +39,7 @@ public class Program
         string toFormat = args.Length > inputFilesEndIndex + 1
             ? args[^(1 + parametersCount)] // Last argument - parameters with '='
             : Path.GetExtension(outputDirectoryOrFile).Trim('.').ToLower(); // Infer from output file
-        
+
         ValidateInputFiles(inputFiles, fromFormat);
 
         // Extract dynamic properties
@@ -59,13 +59,13 @@ public class Program
     {
         if (fromFormat == "web")
             return;
-            
+
         if (inputFiles.Length == 0)
         {
             Console.WriteLine("Error: At least one input file is required.");
             return;
         }
-        
+
         foreach (var file in inputFiles)
         {
             if (!File.Exists(file))
@@ -120,29 +120,25 @@ public class Program
             {
                 if (inputFiles.Length == 1)
                 {
-                    form.Add(new StreamContent(File.OpenRead(inputFiles[0]))
-                    {
-                        Headers = { ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data") { Name = "file", FileName = Path.GetFileName(inputFiles[0]) } }
-                    });
+                    AddFilesToFormParameters(form, "file", inputFiles[0]);
                 }
                 else
                 {
                     int fileIndex = 0;
                     foreach (var inputFile in inputFiles)
                     {
-                        form.Add(new StreamContent(File.OpenRead(inputFile))
-                        {
-                            Headers =
-                            {
-                                ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data") { Name = $"files[{fileIndex}]", FileName = Path.GetFileName(inputFile) }
-                            }
-                        });
+                        AddFilesToFormParameters(form, $"files[{fileIndex}]", inputFile);
                         fileIndex++;
                     }
                 }
             }
 
-            foreach (var property in properties)
+            foreach (var (filePropertyName, filePath) in properties.Where(x => x.Key.ToLower().EndsWith("file")))
+            {
+                AddFilesToFormParameters(form, filePropertyName, filePath);
+            }
+
+            foreach (var property in properties.Where(x => !x.Key.ToLower().EndsWith("file")))
             {
                 form.Add(new StringContent(property.Value), property.Key);
             }
@@ -186,13 +182,21 @@ public class Program
         }
     }
 
+    private static void AddFilesToFormParameters(MultipartFormDataContent form, string parameterName,  string filePath)
+    {
+        form.Add(new StreamContent(File.OpenRead(filePath))
+        {
+            Headers = { ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data") { Name = parameterName, FileName = Path.GetFileName(filePath) } }
+        });
+    }
+
     static string GetVersion()
     {
         var version = Assembly.GetExecutingAssembly()
             .GetName()
             .Version?
             .ToString() ?? "unknown";
-        
+
         return version;
     }
 }

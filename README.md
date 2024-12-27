@@ -116,17 +116,23 @@ convertapi-cli.exe YOUR_API_TOKEN output.docx input.pdf
 
 Merge multiple PDF files into one:
 ```shell
-convertapi-cli.exe YOUR_API_TOKEN merged_output.pdf file1.pdf file2.pdf file3.pdf pdf merge
+convertapi-cli.exe YOUR_API_TOKEN output_directory file1.pdf file2.pdf file3.pdf pdf merge
 ```
 
 Protect a PDF with a password:
 ```shell
-convertapi-cli.exe YOUR_API_TOKEN protected_output.pdf input.pdf pdf protect UserPassword=1234 OwnerPassword=abcd FileName=protected
+convertapi-cli.exe YOUR_API_TOKEN output_directory input.pdf pdf protect UserPassword=1234 OwnerPassword=abcd FileName=protected
 ```
 
 Add a watermark to a PDF:
 ```shell
-convertapi-cli.exe YOUR_API_TOKEN watermarked_output.pdf input.pdf pdf watermark Text=Confidential FileName=watermark
+convertapi-cli.exe YOUR_API_TOKEN output_directory input.pdf pdf watermark Text=Confidential FileName=watermark
+```
+
+Add watermark-overlay to a PDF:
+> **Note:** Overlay file path is added as parameter.
+```shell
+convertapi-cli.exe YOUR_API_TOKEN output_directory input.pdf pdf watermark-overlay OverlayFile=overlay-file.pdf FileName=watermarkResult
 ```
 
 
