@@ -184,7 +184,11 @@ public class Program
 
     static string GetVersion()
     {
-        var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
-        return version ?? "unknown";
+        var version = Assembly.GetExecutingAssembly()
+            .GetName()
+            .Version?
+            .ToString() ?? "unknown";
+        
+        return version;
     }
 }
