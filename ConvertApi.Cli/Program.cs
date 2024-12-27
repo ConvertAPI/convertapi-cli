@@ -79,7 +79,7 @@ public class Program
         Console.WriteLine("ConvertAPI provides a simple way to convert files between different formats, merge, and apply transformations using its powerful API.");
         Console.WriteLine();
         Console.WriteLine("Usage:");
-        Console.WriteLine("  convertapi-cli.exe <api-token> <output-file> <input-files...> [from-format] [to-format] [key1=value1 key2=value2 ...]");
+        Console.WriteLine("  convertapi-cli.exe <api-token> <output-directory> <input-files...> [from-format] [to-format] [key1=value1 key2=value2 ...]");
         Console.WriteLine();
         Console.WriteLine("Examples:");
         Console.WriteLine("  Convert a single PDF to DOCX:");

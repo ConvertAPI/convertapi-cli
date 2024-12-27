@@ -1,48 +1,80 @@
-name: Build and Package
+name: Build and Release
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g. v1.0.0)'
+        required: true
+        default: 'v1.0.0'
   push:
     tags:
       - 'v*'
 
 jobs:
-  build:
+  create_release_job:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      GITHUB_ACTIONS: true
-      PUBLISH_DIR: bin/Release/net8.0/win-x64/publish
-      OUTPUT_ZIP: output/convertApi-cli.zip
-
+    outputs:
+      release_upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
-      # Checkout the code
       - name: Checkout
         uses: actions/checkout@v4
-
-      # Setup .NET SDK
+        
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
-      # Run tests
       - name: Test
         run: dotnet test ConvertApi.Cli.Tests
 
-      # Build the project
-      - name: Build
-        run: dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true
-
-      # Create a zip package
-      - name: Create ZIP package
-        run: |
-          mkdir -p output
-          zip -j ${{ env.OUTPUT_ZIP }} ${{ env.PUBLISH_DIR }}/*
-
-      # Upload the artifact
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: convertApi-cli
-          path: ${{ env.OUTPUT_ZIP }}
+          tag_name: ${{ github.event.inputs.version || github.ref_name }}
+          release_name: ${{ github.event.inputs.version || github.ref_name }}
+          draft: false
+          prerelease: false
+
+  build_and_upload:
+    runs-on: ubuntu-latest
+    needs: create_release_job
+    strategy:
+      matrix:
+        runtime: [ "win-x64", "linux-x64", "linux-arm64", "osx-x64", "osx-arm64" ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Publish for ${{ matrix.runtime }}
+        run: |
+          dotnet publish ConvertApi.Cli/ConvertApi.Cli.csproj \
+            -c Release \
+            -r ${{ matrix.runtime }} \
+            --self-contained true \
+            /p:PublishSingleFile=true \
+            /p:IncludeNativeLibrariesForSelfExtract=true \
+            /p:DebugType=none \
+            /p:DebugSymbols=false
+
+      - name: Zip package
+        run: |
+          zip -j convertApi-cli-${{ matrix.runtime }}.zip ConvertApi.Cli/bin/Release/net8.0/${{ matrix.runtime }}/publish/*
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release_job.outputs.release_upload_url }}
+          asset_path: ./convertApi-cli-${{ matrix.runtime }}.zip
+          asset_name: convertApi-cli-${{ matrix.runtime }}.zip
+          asset_content_type: application/zip

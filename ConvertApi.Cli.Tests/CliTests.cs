@@ -1,11 +1,10 @@
 using System.Diagnostics;
 
-namespace ConvertApi.Cli.Test;
+namespace ConvertApi.Cli.Tests;
 
 [TestFixture]
 public class CliTests
 {
-    private static readonly string CliExecutablePath = Path.Combine(Directory.GetCurrentDirectory(), "convertapi-cli.exe");
     private const string ApiToken = "token_ST4z2qhE"; // Provide your API token
     private static readonly string TestOutputDir = Path.Combine(Directory.GetCurrentDirectory(), "test_output");
 
@@ -67,14 +66,15 @@ public class CliTests
     
     private Process RunCli(string arguments)
     {
-        if (!File.Exists(CliExecutablePath))
-            throw new FileNotFoundException($"CLI executable not found at {CliExecutablePath}");
+        var cliExecutablePath = GetCliExecutablePath();
+        if (!File.Exists(cliExecutablePath))
+            throw new FileNotFoundException($"CLI executable not found at {cliExecutablePath}");
         
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = CliExecutablePath,
+                FileName = cliExecutablePath,
                 Arguments = arguments,
                 UseShellExecute = true, // Run in a normal console environment, because otherwise process hangs because of readline in program.cs
                 CreateNoWindow = true 
@@ -95,5 +95,26 @@ public class CliTests
             throw new Exception($"CLI process exited with code {process.ExitCode}");
         
         return process;
+    }
+    
+    private string GetCliExecutablePath()
+    {
+        var executableName = Path.Combine(Directory.GetCurrentDirectory(), "convertapi-cli");
+        if (OperatingSystem.IsWindows())
+        {
+            executableName += ".exe";
+        }
+
+        var path = Path.Combine(
+            AppContext.BaseDirectory, 
+            executableName
+        );
+
+        if (!File.Exists(path))
+        {
+            throw new FileNotFoundException($"CLI executable not found at {path}");
+        }
+
+        return path;
     }
 }

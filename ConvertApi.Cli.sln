@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConvertApi.Cli", "ConvertApi.Cli\ConvertApi.Cli.csproj", "{006B1430-754B-46E0-BF11-2B9A759E6611}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConvertApi.Cli.Test", "ConvertApi.Cli.Test\ConvertApi.Cli.Test.csproj", "{B14DD22A-6CF3-4515-BFCB-7A7FDE5FD036}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConvertApi.Cli.Tests", "ConvertApi.Cli.Tests\ConvertApi.Cli.Tests.csproj", "{B14DD22A-6CF3-4515-BFCB-7A7FDE5FD036}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
