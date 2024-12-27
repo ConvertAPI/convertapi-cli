@@ -22,7 +22,7 @@ public class Program
         args = args.Select(s => s ?? "").ToArray();
 
         string apiToken = args[0];
-        string outputFile = args[1];
+        string outputDirectoryOrFile = args[1];
 
         // Extract input files, formats, and dynamic properties
         var parametersCount = args.Count(x => x.Contains('='));
@@ -38,7 +38,7 @@ public class Program
 
         string toFormat = args.Length > inputFilesEndIndex + 1
             ? args[^(1 + parametersCount)] // Last argument - parameters with '='
-            : Path.GetExtension(outputFile).Trim('.').ToLower(); // Infer from output file
+            : Path.GetExtension(outputDirectoryOrFile).Trim('.').ToLower(); // Infer from output file
         
         ValidateInputFiles(inputFiles, fromFormat);
 
@@ -48,7 +48,11 @@ public class Program
             arg => arg.Split('=')[1]
         );
 
-        await ConvertFiles(apiToken, fromFormat, toFormat, inputFiles, outputFile, dynamicProperties);
+        // Setting file name for simplified (3 parameters) conversion.
+        if (args.Length == 3 && dynamicProperties.Keys.All(x => !x.Equals("FileName", StringComparison.CurrentCultureIgnoreCase)))
+            dynamicProperties.Add("FileName", Path.GetFileNameWithoutExtension(outputDirectoryOrFile));
+
+        await ConvertFiles(apiToken, fromFormat, toFormat, inputFiles, outputDirectoryOrFile, dynamicProperties);
     }
 
     private static void ValidateInputFiles(string[] inputFiles, string fromFormat)

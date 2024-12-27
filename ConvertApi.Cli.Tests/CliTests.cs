@@ -5,7 +5,7 @@ namespace ConvertApi.Cli.Tests;
 [TestFixture]
 public class CliTests
 {
-    private const string ApiToken = "token_ST4z2qhE"; // Provide your API token
+    private const string ApiToken = "token_6yNouyuY"; // Provide your API token
     private static readonly string TestOutputDir = Path.Combine(Directory.GetCurrentDirectory(), "test_output");
 
     [SetUp]
