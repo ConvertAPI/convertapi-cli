@@ -16,7 +16,7 @@
         <Description>convertapi-cli</Description>
         <Copyright>ConvertAPI</Copyright>
         <Company>ConvertAPI</Company>
-        <Version>0.0.4</Version>
+        <Version>0.0.5</Version>
     </PropertyGroup>
 
     <ItemGroup>
