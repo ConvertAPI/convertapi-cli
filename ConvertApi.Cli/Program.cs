@@ -50,7 +50,7 @@ public class Program
 
         if (dynamicProperties.Any(x => x.Key.ToLower() == "storefile" && x.Value.ToLower() == "true"))
         {
-            Console.WriteLine("Error: StoreFile parameter is now allowed in cli tool. Please use our API directly if you need this parameter.");
+            Console.WriteLine("Error: StoreFile parameter is not allowed in cli tool. Please use our API directly if you need this parameter.");
             return;
         }
 
