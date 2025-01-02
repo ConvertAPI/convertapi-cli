@@ -72,7 +72,7 @@ public class DirectCallTests
         var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
         var overlayFile = @"D:\Code\ConvertApi\ConvertApi.Converter.PdfToolkit\ConvertApi.Converter.PdfToolkit.Tests\Files\Watermark\green.pdf";
     
-        await Program.Main([ApiToken, TestOutputDir, inputFile, "pdf", "watermark-overlay", $"OverlayFile={overlayFile}"]);
+        await Program.Main([ApiToken, TestOutputDir, inputFile, "pdf", "watermark-overlay", $"OverlayFile={overlayFile}", "FileName=watermarkOverlay"]);
     
         Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
     }
