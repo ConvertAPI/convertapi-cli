@@ -70,9 +70,21 @@ public class DirectCallTests
     {
         var outputFile = Path.Combine(TestOutputDir, "watermarkOverlay.pdf");
         var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
-        var overlayFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
+        var overlayFile = @"D:\Code\ConvertApi\ConvertApi.Converter.PdfToolkit\ConvertApi.Converter.PdfToolkit.Tests\Files\Watermark\green.pdf";
     
-        await Program.Main([ApiToken, TestOutputDir, inputFile, "pdf", "watermark-overlay", "FileName=watermarkOverlay", $"OverlayFile={overlayFile}"]);
+        await Program.Main([ApiToken, TestOutputDir, inputFile, "pdf", "watermark-overlay", $"OverlayFile={overlayFile}"]);
+    
+        Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
+    }
+    
+    [Test]
+    public async Task TestDocxCompare()
+    {
+        var outputFile = Path.Combine(TestOutputDir, "demo.docx");
+        var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "demo.docx");
+        var compareFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "demo-changed.docx");
+    
+        await Program.Main([ApiToken, TestOutputDir, inputFile, "docx", "compare", $"CompareFile={compareFile}", "storeFile=false"]);
     
         Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
     }

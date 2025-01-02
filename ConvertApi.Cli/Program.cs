@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Reflection;
 using Microsoft.AspNetCore.WebUtilities;
@@ -47,6 +47,12 @@ public class Program
             arg => arg.Split('=')[0],
             arg => arg.Split('=')[1]
         );
+
+        if (dynamicProperties.Any(x => x.Key.ToLower() == "storefile" && x.Value.ToLower() == "true"))
+        {
+            Console.WriteLine("Error: StoreFile parameter is now allowed in cli tool. Please use our API directly if you need this parameter.");
+            return;
+        }
 
         // Setting file name for simplified (3 parameters) conversion.
         if (args.Length == 3 && dynamicProperties.Keys.All(x => !x.Equals("FileName", StringComparison.CurrentCultureIgnoreCase)))
@@ -132,8 +138,8 @@ public class Program
                     }
                 }
             }
-
-            foreach (var (filePropertyName, filePath) in properties.Where(x => x.Key.ToLower().EndsWith("file")))
+            
+            foreach (var (filePropertyName, filePath) in properties.Where(x => x.Key.ToLower().EndsWith("file") && x.Key.ToLower() != ("storefile")))
             {
                 AddFilesToFormParameters(form, filePropertyName, filePath);
             }

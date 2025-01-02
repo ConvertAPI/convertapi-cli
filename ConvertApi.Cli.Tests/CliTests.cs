@@ -41,6 +41,18 @@ public class CliTests
         Assert.AreEqual(0, process.ExitCode, "CLI did not exit cleanly.");
         Assert.IsTrue(File.Exists(outputFile), "Output file was not created.");
     }
+    
+    [Test]
+    public void TestCompareDocx()
+    {
+        var outputFile = Path.Combine(TestOutputDir, "demo.docx");
+        var inputFile1 = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "demo.docx");
+        var inputFile2 = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "demo-changed.docx");
+        var process = RunCli($"{ApiToken} {outputFile} {inputFile1} docx compare CompareFile={inputFile2} storeFile=true");
+
+        Assert.AreEqual(0, process.ExitCode, "CLI did not exit cleanly.");
+        Assert.IsTrue(!File.Exists(outputFile), "Output file should not be not created.");
+    }
 
     [Test]
     public void TestAddWatermarkToPdf()
