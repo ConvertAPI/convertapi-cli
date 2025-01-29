@@ -11,11 +11,11 @@ You can get your free secret at https://www.convertapi.com/a
 
 Download compressed CLI executable
 
-* Linux: [convertApi-cli-linux-x64.zip](https://github.com/ConvertAPI/convertapi-cli/releases/latest/download/convertApi-cli-linux-x64.zip)
-* Linux ARM64: [convertApi-cli-linux-arm64.zip](https://github.com/ConvertAPI/convertapi-cli/releases/latest/download/convertApi-cli-linux-arm64.zip)
-* MacOS (Intel x64): [convertApi-cli-osx-x64.zip](https://github.com/ConvertAPI/convertapi-cli/releases/latest/download/convertApi-cli-osx-x64.zip)
-* MacOS (Apple Silicon arm64): [convertApi-cli-osx-arm64.zip](https://github.com/ConvertAPI/convertapi-cli/releases/latest/download/convertApi-cli-osx-arm64.zip)
-* Windows: [convertApi-cli-win-x64.zip](https://github.com/ConvertAPI/convertapi-cli/releases/latest/download/convertApi-cli-win-x64.zip)
+* Linux: [convertapi-cli-linux-x64.zip](https://github.com/ConvertAPI/convertapi-cli/releases/latest/download/convertapi-cli-linux-x64.zip)
+* Linux ARM64: [convertapi-cli-linux-arm64.zip](https://github.com/ConvertAPI/convertapi-cli/releases/latest/download/convertapi-cli-linux-arm64.zip)
+* MacOS (Intel x64): [convertapi-cli-osx-x64.zip](https://github.com/ConvertAPI/convertapi-cli/releases/latest/download/convertapi-cli-osx-x64.zip)
+* MacOS (Apple Silicon arm64): [convertapi-cli-osx-arm64.zip](https://github.com/ConvertAPI/convertapi-cli/releases/latest/download/convertapi-cli-osx-arm64.zip)
+* Windows: [convertapi-cli-win-x64.zip](https://github.com/ConvertAPI/convertapi-cli/releases/latest/download/convertapi-cli-win-x64.zip)
 
 (this utility can also be built from source code for many other CPU and OS)
 
@@ -37,7 +37,7 @@ sudo mv convertapi /usr/local/bin
 ### Before you start
 
 In order to use this CLI utility, you must create your free trial account on https://www.convertapi.com site.  
-After the sign-up process, you will get your secret at https://www.convertapi.com/a .
+After the sign-up process, you will get your secret at https://www.convertapi.com/a/secret.
 The secret will be used in every CLI utility run.
 
 ### Basic file conversion
@@ -58,9 +58,8 @@ convertapi-cli.exe
 
 #### api-token (Authentication)
 Any of these authentication mechanisms can be used as `api-token`:
-- ConvertAPI user**secret**: https://www.convertapi.com/a
-- **Access token**: [ConvertAPI dashboard](https://www.convertapi.com/a/access-tokens).
-- **JWT token**: [ConvertAPI dashboard](https://www.convertapi.com/a/jwt-tokens).
+- ConvertAPI user **[Secret](https://www.convertapi.com/a/secret)**
+- ConvertAPI **[Access token](https://www.convertapi.com/a/access-tokens)**
 
 _Example:_
 
@@ -68,7 +67,7 @@ _Example:_
 api_token
 ```
 
-#### output-directory
+### output-directory
 Directory where converted file / files needs to be saved in your system.
 _Example:_
 
@@ -76,36 +75,31 @@ _Example:_
 <directory-in-your-file-system>
 ```
 
-##### input-files parameter
+### input-files parameter
 The full file path in your file system. If the conversion supports multiple input files, separate their full paths with spaces (' ').
 ```shell
 <full-path1> <full-path2> <full-path3>
 ```
 
 
-##### from-format
+### from-format
 Find specific formats from all conversions here: https://www.convertapi.com/api. When you open a conversion, the **From** (Source) and **To** (Destination) formats are visible in the browser's URL and in the API Request panel, which displays the HTTP POST request URL.
 _Example:_
-- Docx to Html conversion: https://www.convertapi.com/a/api/docx-to-html. **From-format** is: `docx`.
-- Watermark PDF conversion: https://www.convertapi.com/a/api/pdf-to-watermark. **From-format** is: `pdf`.
-- Images to Join conversion: https://www.convertapi.com/a/api/images-to-join. **From-format** is: `images`.
+- Docx to Html conversion: https://www.convertapi.com/docx-to-html. **From-format** is: `docx`.
+- Watermark PDF conversion: https://www.convertapi.com/pdf-to-watermark. **From-format** is: `pdf`.
+- Images to Join conversion: https://www.convertapi.com/images-to-join. **From-format** is: `images`.
 
-##### to-format
+### to-format
 Find specific formats from all conversions here: https://www.convertapi.com/api. When you open a conversion, the **From** (Source) and **To** (Destination) formats are visible in the browser's URL and in the API Request panel, which displays the HTTP POST request URL.
 
 _Example:_
-- Docx to Html conversion: https://www.convertapi.com/a/api/docx-to-html. **To-format** is: `html`.
-- Watermark PDF conversion: https://www.convertapi.com/a/api/pdf-to-watermark. **To-format** is: `watermark`.
-- Images to Join conversion: https://www.convertapi.com/a/api/images-to-join. **To-format** is: `join`.
+- Docx to Html conversion: https://www.convertapi.com/docx-to-html. **To-format** is: `html`.
+- Watermark PDF conversion: https://www.convertapi.com/pdf-to-watermark. **To-format** is: `watermark`.
+- Images to Join conversion: https://www.convertapi.com/images-to-join. **To-format** is: `join`.
 
-##### Parameters
-All parameters can be found on a specific conversion. Parameters are separated with spaces (' ').
+### Parameters
+All parameters for a specific conversion can be found on its dedicated page. To view them, navigate to the [All conversions list](https://www.convertapi.com/api), find the desired conversion, and click on it. On the conversion's page, you will see all available parameters.
 
-_Example:_
-For example, we are doing PDF to JPG conversion: https://www.convertapi.com/a/api/pdf-to-jpg and want to set Pdf password, result file name and result image resolution.
-```shell
-password=1234 filename=new-wonderful-name ImageResolution=300 
-```
 
 ## Examples
 
