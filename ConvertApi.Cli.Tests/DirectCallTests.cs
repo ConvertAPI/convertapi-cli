@@ -3,7 +3,7 @@ namespace ConvertApi.Cli.Tests;
 [TestFixture]
 public class DirectCallTests
 {
-    private const string ApiToken = "token_6yNouyuY"; // Provide your API token
+    private const string ApiToken = "api_token"; // Provide your API token
     private static readonly string TestOutputDir = Path.Combine(Directory.GetCurrentDirectory(), "test_output");
 
     [SetUp]
@@ -120,29 +120,6 @@ public class DirectCallTests
     
         var outputFiles = Directory.GetFiles(TestOutputDir);
         Assert.That(outputFiles, Has.Length.EqualTo(1), "Output file was not created.");
-    }
-    
-    [Test]
-    public async Task TestPdfToExtractImagesError()
-    {
-        var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "22pages.pdf");
-    
-        await Program.Main([ApiToken, TestOutputDir, inputFile, "pdf", "extract-images"]);
-        
-        var outputFiles = Directory.GetFiles(TestOutputDir);
-        Assert.That(outputFiles, Has.Length.EqualTo(0), "There should not be any converted files.");
-    }
-    
-    [Test]
-    public async Task TestPdfToDocxWithMixedUpInputs()
-    {
-        var inputFile = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "simple.pdf");
-    
-        // pdf and docx are mixed on purpose!
-        await Program.Main([ApiToken, TestOutputDir, inputFile, "docx", "pdf"]);
-        
-        var outputFiles = Directory.GetFiles(TestOutputDir);
-        Assert.That(outputFiles, Has.Length.EqualTo(0), "There should not be any converted files.");
     }
 
     [Test]

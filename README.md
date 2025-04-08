@@ -129,6 +129,16 @@ Add watermark-overlay to a PDF:
 convertapi-cli.exe YOUR_API_TOKEN output_directory input.pdf pdf watermark-overlay OverlayFile=overlay-file.pdf FileName=watermarkResult
 ```
 
+## Exit Codes
+
+The ConvertAPI CLI uses exit codes to indicate the outcome of a command execution:
+
+- **0** - Success: The command completed without errors.
+- **1** - Argument/Parameter Validation Error: This occurs when there are issues with the arguments, such as insufficient parameters or invalid file paths.
+- **2** - API Response Error: This occurs when the API call fails.
+
+Use these exit codes to programmatically detect failures and handle them appropriately in scripts or integrations.
+
 
 ### Issues &amp; Comments
 Please leave all comments, bugs, requests, and issues on the Issues page. We'll respond to your request ASAP!

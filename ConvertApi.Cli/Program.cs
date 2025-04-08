@@ -51,6 +51,7 @@ public class Program
         if (dynamicProperties.Any(x => x.Key.ToLower() == "storefile" && x.Value.ToLower() == "true"))
         {
             Console.WriteLine("Error: StoreFile parameter is not allowed in cli tool. Please use our API directly if you need this parameter.");
+            Environment.Exit(1);
             return;
         }
 
@@ -69,6 +70,7 @@ public class Program
         if (inputFiles.Length == 0)
         {
             Console.WriteLine("Error: At least one input file is required.");
+            Environment.Exit(1);
             return;
         }
 
@@ -77,6 +79,7 @@ public class Program
             if (!File.Exists(file))
             {
                 Console.WriteLine($"Error: Input file not found: {file}");
+                Environment.Exit(1);
                 return;
             }
         }
@@ -106,6 +109,11 @@ public class Program
         Console.WriteLine();
         Console.WriteLine("Dynamic Properties:");
         Console.WriteLine("  Specify additional parameters using key=value pairs, such as UserPassword, OwnerPassword, or WatermarkText, depending on the API being used.");
+        Console.WriteLine();
+        Console.WriteLine("Exit Codes:");
+        Console.WriteLine("  0 - Success");
+        Console.WriteLine("  1 - Error in arguments/parameters validation");
+        Console.WriteLine("  2 - API response error");
         Console.WriteLine();
         Console.WriteLine("For more information, visit: https://www.convertapi.com/");
     }
@@ -184,6 +192,7 @@ public class Program
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"Error: {response.StatusCode}. Response message: {errorContent}");
+                Environment.Exit(2);
             }
         }
     }

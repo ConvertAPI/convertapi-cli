@@ -5,7 +5,7 @@ namespace ConvertApi.Cli.Tests;
 [TestFixture]
 public class CliTests
 {
-    private const string ApiToken = "token_6yNouyuY"; // Provide your API token
+    private const string ApiToken = "api_token"; // Provide your API token
     private static readonly string TestOutputDir = Path.Combine(Directory.GetCurrentDirectory(), "test_output");
 
     [SetUp]
@@ -50,7 +50,7 @@ public class CliTests
         var inputFile2 = Path.Combine(Directory.GetCurrentDirectory(), "../../../../", "test_files", "demo-changed.docx");
         var process = RunCli($"{ApiToken} {outputFile} {inputFile1} docx compare CompareFile={inputFile2} storeFile=true");
 
-        Assert.AreEqual(0, process.ExitCode, "CLI did not exit cleanly.");
+        Assert.AreEqual(1, process.ExitCode, "StoreFile parameter is not allowed");
         Assert.IsTrue(!File.Exists(outputFile), "Output file should not be not created.");
     }
 
@@ -100,11 +100,8 @@ public class CliTests
         if (!process.WaitForExit(20000))
         {
             process.Kill();
-            throw new TimeoutException("The CLI process did not exit within 2 minutes.");
+            throw new TimeoutException("The CLI process did not exit within 20 s.");
         }
-        
-        if (process.ExitCode != 0)
-            throw new Exception($"CLI process exited with code {process.ExitCode}");
         
         return process;
     }
