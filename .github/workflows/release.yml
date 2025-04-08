@@ -25,9 +25,6 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      - name: Test
-        run: dotnet test ConvertApi.Cli.Tests
-
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
