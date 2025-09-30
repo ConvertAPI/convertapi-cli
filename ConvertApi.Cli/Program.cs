@@ -167,24 +167,21 @@ public class Program
 
                 var boundary = HeaderUtilities.RemoveQuotes(response.Content.Headers.ContentType.Parameters.First(p => p.Name == "boundary").Value).Value;
                 var multipartReader = new MultipartReader(boundary, await response.Content.ReadAsStreamAsync());
-                MultipartSection section;
-                int fileIndex = 1;
 
-                while ((section = await multipartReader.ReadNextSectionAsync()) != null)
+                while (await multipartReader.ReadNextSectionAsync() is { } section)
                 {
                     if (Microsoft.Net.Http.Headers.ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out var contentDisposition) &&
                         (contentDisposition.FileName != null || contentDisposition.FileNameStar.HasValue))
                     {
                         var fileName = contentDisposition.FileNameStar.HasValue ? contentDisposition.FileNameStar.Value : contentDisposition.FileName.Value.Trim('"');
-                        var filePath = Directory.Exists(outputPath) ? Path.Combine(outputPath, fileName) : Path.Combine(Path.GetDirectoryName(outputPath), fileName);
+                        var outputFilePath = GenerateOutputFilePath(outputPath, fileName);
 
-                        using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                        await using (var fileStream = new FileStream(outputFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
                         {
                             await section.Body.CopyToAsync(fileStream);
                         }
 
-                        Console.WriteLine($"File saved: {filePath}");
-                        fileIndex++;
+                        Console.WriteLine($"File saved: {outputFilePath}");
                     }
                 }
             }
@@ -195,6 +192,38 @@ public class Program
                 Environment.Exit(2);
             }
         }
+    }
+
+    private static string GenerateOutputFilePath(string outputPath, string fileName)
+    {
+        // Determine if outputPath is a directory
+        var isDir = outputPath.EndsWith(Path.DirectorySeparatorChar) ||
+                    outputPath.EndsWith(Path.AltDirectorySeparatorChar) ||
+                    Directory.Exists(outputPath) ||
+                    !Path.HasExtension(outputPath);
+        
+        var filePath = !isDir ? outputPath : Path.Combine(outputPath, fileName);
+        return GetAvailableFilePath(filePath);
+    }
+
+    private static string GetAvailableFilePath(string filePath)
+    {
+        if (!File.Exists(filePath))
+            return filePath;
+
+        var directory = Path.GetDirectoryName(filePath);
+        var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(filePath);
+        var extension = Path.GetExtension(filePath);
+        var counter = 1;
+
+        string newFilePath;
+        do
+        {
+            newFilePath = Path.Combine(directory, $"{fileNameWithoutExtension} ({counter}){extension}");
+            counter++;
+        } while (File.Exists(newFilePath));
+
+        return newFilePath;
     }
 
     private static void AddFilesToFormParameters(MultipartFormDataContent form, string parameterName,  string filePath)
