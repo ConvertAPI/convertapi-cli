@@ -5,7 +5,7 @@
 ConvertAPI helps in converting various file formats. Creating PDF and Images from various sources like Word, Excel, Powerpoint, images, web pages or raw HTML codes. Merge, Encrypt, Split, Repair and Decrypt PDF files and many other file manipulations. You can integrate it into your application in just a few minutes and use it easily.
 
 The ConvertAPI CLI makes it easier to use the Convert API from your shell without having to build your own HTTP calls.
-You can get your free secret at https://www.convertapi.com/a
+You can get your free API Token at https://www.convertapi.com/a/authentication
 
 ## Installation
 
@@ -37,8 +37,8 @@ sudo mv convertapi /usr/local/bin
 ### Before you start
 
 In order to use this CLI utility, you must create your free trial account on https://www.convertapi.com site.  
-After the sign-up process, you will get your secret at https://www.convertapi.com/a/secret.
-The secret will be used in every CLI utility run.
+After the sign-up process, you will get your API Token at https://www.convertapi.com/a/authentication.
+The Token will be used in every CLI utility run.
 
 ### Basic file conversion
 
@@ -57,9 +57,7 @@ convertapi-cli.exe
 ```
 
 #### api-token (Authentication)
-Any of these authentication mechanisms can be used as `api-token`:
-- ConvertAPI user **[Secret](https://www.convertapi.com/a/secret)**
-- ConvertAPI **[Access token](https://www.convertapi.com/a/access-tokens)**
+API tokens as used to authenticate requests: **[Token](https://www.convertapi.com/a/authentication)**
 
 _Example:_
 
